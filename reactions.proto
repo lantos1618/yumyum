@@ -1,9 +1,6 @@
 syntax = "proto3";
 
 
-import "google/protobuf/empty.proto";
-
-
 // go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 // go install google.golang.org/protobuf/cmd/protoc-gen-go
 // PATH="${PATH}:${HOME}/go/bin"      
@@ -15,13 +12,15 @@ package reactions;
 option go_package = "proto/go/reactions";
 
 service ReactionsService {
-  rpc SendEmojiReaction (stream Emoji) returns (google.protobuf.Empty) {}
-  rpc ReceiveEmojiReaction (google.protobuf.Empty) returns (stream Emoji) {}
+  rpc SendEmojiReaction (stream Emoji) returns (Empty) {}
+  rpc ReceiveEmojiReaction (Empty) returns (stream Emoji) {}
 }
 
 message Emoji {
   EmojiReaction reaction = 1;
 }
+
+message Empty {}
 
 enum EmojiReaction {
   UNKNOWN = 0;

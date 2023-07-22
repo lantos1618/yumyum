@@ -4,9 +4,10 @@
 // - protoc             v4.23.4
 // source: reactions.proto
 
-// protoc --go_out=. --go_opt=paths=source_relative \
-//     --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-//     reactions.proto
+// go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+// go install google.golang.org/protobuf/cmd/protoc-gen-go
+// PATH="${PATH}:${HOME}/go/bin"
+// protoc --go_out=. --go-grpc_out=. reactions.proto                                                                                ✔  14:01:41 
 
 package reactions
 
@@ -15,7 +16,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -33,7 +33,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReactionsServiceClient interface {
 	SendEmojiReaction(ctx context.Context, opts ...grpc.CallOption) (ReactionsService_SendEmojiReactionClient, error)
-	ReceiveEmojiReaction(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ReactionsService_ReceiveEmojiReactionClient, error)
+	ReceiveEmojiReaction(ctx context.Context, in *Empty, opts ...grpc.CallOption) (ReactionsService_ReceiveEmojiReactionClient, error)
 }
 
 type reactionsServiceClient struct {
@@ -55,7 +55,7 @@ func (c *reactionsServiceClient) SendEmojiReaction(ctx context.Context, opts ...
 
 type ReactionsService_SendEmojiReactionClient interface {
 	Send(*Emoji) error
-	CloseAndRecv() (*emptypb.Empty, error)
+	CloseAndRecv() (*Empty, error)
 	grpc.ClientStream
 }
 
@@ -67,18 +67,18 @@ func (x *reactionsServiceSendEmojiReactionClient) Send(m *Emoji) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *reactionsServiceSendEmojiReactionClient) CloseAndRecv() (*emptypb.Empty, error) {
+func (x *reactionsServiceSendEmojiReactionClient) CloseAndRecv() (*Empty, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(emptypb.Empty)
+	m := new(Empty)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *reactionsServiceClient) ReceiveEmojiReaction(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ReactionsService_ReceiveEmojiReactionClient, error) {
+func (c *reactionsServiceClient) ReceiveEmojiReaction(ctx context.Context, in *Empty, opts ...grpc.CallOption) (ReactionsService_ReceiveEmojiReactionClient, error) {
 	stream, err := c.cc.NewStream(ctx, &ReactionsService_ServiceDesc.Streams[1], ReactionsService_ReceiveEmojiReaction_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (x *reactionsServiceReceiveEmojiReactionClient) Recv() (*Emoji, error) {
 // for forward compatibility
 type ReactionsServiceServer interface {
 	SendEmojiReaction(ReactionsService_SendEmojiReactionServer) error
-	ReceiveEmojiReaction(*emptypb.Empty, ReactionsService_ReceiveEmojiReactionServer) error
+	ReceiveEmojiReaction(*Empty, ReactionsService_ReceiveEmojiReactionServer) error
 	mustEmbedUnimplementedReactionsServiceServer()
 }
 
@@ -126,7 +126,7 @@ type UnimplementedReactionsServiceServer struct {
 func (UnimplementedReactionsServiceServer) SendEmojiReaction(ReactionsService_SendEmojiReactionServer) error {
 	return status.Errorf(codes.Unimplemented, "method SendEmojiReaction not implemented")
 }
-func (UnimplementedReactionsServiceServer) ReceiveEmojiReaction(*emptypb.Empty, ReactionsService_ReceiveEmojiReactionServer) error {
+func (UnimplementedReactionsServiceServer) ReceiveEmojiReaction(*Empty, ReactionsService_ReceiveEmojiReactionServer) error {
 	return status.Errorf(codes.Unimplemented, "method ReceiveEmojiReaction not implemented")
 }
 func (UnimplementedReactionsServiceServer) mustEmbedUnimplementedReactionsServiceServer() {}
@@ -147,7 +147,7 @@ func _ReactionsService_SendEmojiReaction_Handler(srv interface{}, stream grpc.Se
 }
 
 type ReactionsService_SendEmojiReactionServer interface {
-	SendAndClose(*emptypb.Empty) error
+	SendAndClose(*Empty) error
 	Recv() (*Emoji, error)
 	grpc.ServerStream
 }
@@ -156,7 +156,7 @@ type reactionsServiceSendEmojiReactionServer struct {
 	grpc.ServerStream
 }
 
-func (x *reactionsServiceSendEmojiReactionServer) SendAndClose(m *emptypb.Empty) error {
+func (x *reactionsServiceSendEmojiReactionServer) SendAndClose(m *Empty) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -169,7 +169,7 @@ func (x *reactionsServiceSendEmojiReactionServer) Recv() (*Emoji, error) {
 }
 
 func _ReactionsService_ReceiveEmojiReaction_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(emptypb.Empty)
+	m := new(Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
