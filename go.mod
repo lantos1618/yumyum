@@ -1,4 +1,4 @@
-module zug.dev/yumyum_backend
+module github.com/lantos1618/yumyum
 
 go 1.20
 

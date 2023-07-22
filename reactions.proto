@@ -7,8 +7,9 @@ package reactions;
 
 option go_package = "proto/go/reactions";
 
-service MyService {
-  rpc SendEmojiReaction (MyEmoji) returns (google.protobuf.Empty) {}
+service ReactionsService {
+  rpc SendEmojiReaction (stream MyEmoji) returns (google.protobuf.Empty) {}
+  rpc ReceiveEmojiReaction (google.protobuf.Empty) returns (stream MyEmoji) {}
 }
 
 message MyEmoji {
