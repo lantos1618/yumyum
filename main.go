@@ -11,8 +11,8 @@ import (
 )
 
 type server struct {
-	reactions.MyEmoji
-	connectedClients map[peer.Peer]reactions.EmojiReaction
+	reactions.
+	connectedClients map[peer.Peer]
 	mu               sync.Mutex
 }
 
