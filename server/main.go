@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"sync"
 
-	"github.com/lantos1618/yumyum/proto/go/reactions"
+	reactions "github.com/lantos1618/yumyum/proto/go/reactions"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )
@@ -26,7 +27,10 @@ func (s *server) SendEmojiReaction(stream reactions.ReactionsService_SendEmojiRe
 		s.mu.Lock()
 		for _, client := range s.connectedClients {
 			if err := client.Send(emoji); err != nil {
-				// handle error
+				// check to see if client is still connected
+				// if not, remove from connectedClients
+				// lets drop the client for now
+				fmt.Println("Error sending emoji to client: ", err)
 			}
 		}
 		s.mu.Unlock()
