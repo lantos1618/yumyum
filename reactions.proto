@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+
+import "google/protobuf/empty.proto";
+
+package reactions;
+
+option go_package = "proto/go/reactions";
+
+service MyService {
+  rpc SendEmojiReaction (MyEmoji) returns (google.protobuf.Empty) {}
+}
+
+message MyEmoji {
+  EmojiReaction reaction = 1;
+}
+
+enum EmojiReaction {
+  UNKNOWN = 0;
+  LIKE = 1;
+  LOVE = 2;
+  HAHA = 3;
+  WOW = 4;
+  SAD = 5;
+  ANGRY = 6;
+}
