@@ -11,12 +11,12 @@ import (
 )
 
 type server struct {
-	reactions.
-	connectedClients map[peer.Peer]
+	reactions.UnimplementedReactionsServiceServer
+	connectedClients map[peer.Peer]reactions.ReactionsService_ReceiveEmojiReactionServer
 	mu               sync.Mutex
 }
 
-func (s *server) SendEmojiReaction(stream reactions.MyEmoji) error {
+func (s *server) SendEmojiReaction(stream reactions.ReactionsService_SendEmojiReactionServer) error {
 	for {
 		emoji, err := stream.Recv()
 		if err != nil {
@@ -31,9 +31,10 @@ func (s *server) SendEmojiReaction(stream reactions.MyEmoji) error {
 		}
 		s.mu.Unlock()
 	}
+	return nil
 }
 
-func (s *server) ReceiveEmojiReaction(e *pb.Empty, stream pb.MyService_ReceiveEmojiReactionServer) error {
+func (s *server) ReceiveEmojiReaction(e *reactions.Empty, stream reactions.ReactionsService_ReceiveEmojiReactionServer) error {
 	p, _ := peer.FromContext(stream.Context())
 	s.mu.Lock()
 	s.connectedClients[*p] = stream
@@ -52,8 +53,8 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterMyServiceServer(s, &server{
-		connectedClients: make(map[peer.Peer]pb.MyService_ReceiveEmojiReactionServer),
+	reactions.RegisterReactionsServiceServer(s, &server{
+		connectedClients: make(map[peer.Peer]reactions.ReactionsService_ReceiveEmojiReactionServer),
 	})
 
 	if err := s.Serve(lis); err != nil {
