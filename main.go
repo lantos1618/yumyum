@@ -5,8 +5,8 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/lantos1618/yumyum_backend/proto/yumyum_proto"
-
+	// load our proto file from ./proto/go/reactions/reactions.proto
+	pb "github.com/lantos1618/yumyum/proto/go/reactions"
 	"google.golang.org/grpc"
 )
 
