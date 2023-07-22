@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -8,6 +9,7 @@ import (
 
 	reactions "github.com/lantos1618/yumyum/proto/go/reactions"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )
 
@@ -18,6 +20,7 @@ type server struct {
 }
 
 func (s *server) SendEmojiReaction(stream reactions.ReactionsService_SendEmojiReactionServer) error {
+	p, _ := peer.FromContext(stream.Context())
 	for {
 		emoji, err := stream.Recv()
 		if err != nil {
@@ -25,12 +28,14 @@ func (s *server) SendEmojiReaction(stream reactions.ReactionsService_SendEmojiRe
 			return err
 		}
 		s.mu.Lock()
-		for _, client := range s.connectedClients {
-			if err := client.Send(emoji); err != nil {
-				// check to see if client is still connected
-				// if not, remove from connectedClients
-				// lets drop the client for now
-				fmt.Println("Error sending emoji to client: ", err)
+		for client, clientStream := range s.connectedClients {
+			if client != *p {
+				if err := clientStream.Send(emoji); err != nil {
+					// check to see if client is still connected
+					// if not, remove from connectedClients
+					// lets drop the client for now
+					fmt.Println("Error sending emoji to client: ", err)
+				}
 			}
 		}
 		s.mu.Unlock()
@@ -50,13 +55,32 @@ func (s *server) ReceiveEmojiReaction(e *reactions.Empty, stream reactions.React
 	return nil
 }
 
+func loadTLSCredentials(certFile string, keyFile string) (credentials.TransportCredentials, error) {
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, err
+	}
+	return credentials.NewServerTLSFromCert(&cert), nil
+}
+
 func main() {
+	certFile, keyFile := "server.crt", "server.key"
+	tlsCreds, err := loadTLSCredentials(certFile, keyFile)
+	if err != nil {
+		log.Println("Launching server without TLS: %v", err)
+	}
+
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	var opts []grpc.ServerOption
+	if tlsCreds != nil {
+		opts = append(opts, grpc.Creds(tlsCreds))
+	}
+
+	s := grpc.NewServer(opts...)
 	reactions.RegisterReactionsServiceServer(s, &server{
 		connectedClients: make(map[peer.Peer]reactions.ReactionsService_ReceiveEmojiReactionServer),
 	})
