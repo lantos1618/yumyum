@@ -4,16 +4,15 @@ syntax = "proto3";
 // go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 // go install google.golang.org/protobuf/cmd/protoc-gen-go
 // PATH="${PATH}:${HOME}/go/bin"      
-// protoc --go_out=. --go-grpc_out=. reactions.proto                                                                                ✔  14:01:41  
+// protoc --go_out=. --go-grpc_out=. yumyum.proto                                                                             ✔  14:01:41  
 
 
 package reactions;
 
-option go_package = "proto/go/reactions";
+option go_package = "proto/go/";
 
-service ReactionsService {
-  rpc SendEmojiReaction (stream Emoji) returns (Empty) {}
-  rpc ReceiveEmojiReaction (Empty) returns (stream Emoji) {}
+service YumYumService {
+  rpc EmojiChat (stream Emoji) returns (stream Emoji) {}
 }
 
 message Emoji {

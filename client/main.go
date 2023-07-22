@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	reactions "github.com/lantos1618/yumyum/proto/go/reactions"
+	pb "github.com/lantos1618/yumyum/proto/go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,8 +31,8 @@ func createClientConnection(creds credentials.TransportCredentials) (*grpc.Clien
 	return grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
-func receiveMessages(client reactions.ReactionsServiceClient) {
-	stream, err := client.ReceiveEmojiReaction(context.Background(), &reactions.Empty{})
+func receiveMessages(client pb.YumYumServiceClient) {
+	stream, err := client.EmojiChat(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to call ReceiveEmojiReaction: %v", err)
 	}
@@ -45,8 +45,8 @@ func receiveMessages(client reactions.ReactionsServiceClient) {
 	}
 }
 
-func sendMessages(client reactions.ReactionsServiceClient) {
-	stream, err := client.SendEmojiReaction(context.Background())
+func sendMessages(client pb.YumYumServiceClient) {
+	stream, err := client.EmojiChat(context.Background(), grpc.EmptyCallOption{})
 	if err != nil {
 		log.Fatalf("Failed to call SendEmojiReaction: %v", err)
 	}
@@ -54,10 +54,10 @@ func sendMessages(client reactions.ReactionsServiceClient) {
 
 	for {
 		time.Sleep(time.Second * 1)
-		if err := stream.Send(&reactions.Emoji{Reaction: reactions.EmojiReaction_LOVE}); err != nil {
+		if err := stream.Send(&pb.Emoji{Reaction: pb.EmojiReaction_LOVE}); err != nil {
 			log.Fatalf("Failed to send emoji: %v", err)
 		}
-		log.Printf("Sent emoji: %v", reactions.EmojiReaction_LOVE)
+		log.Printf("Sent emoji: %v", pb.EmojiReaction_LOVE)
 	}
 }
 
@@ -73,7 +73,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := reactions.NewReactionsServiceClient(conn)
+	client := pb.NewYumYumServiceClient(conn)
 
 	go receiveMessages(client)
 	sendMessages(client)
