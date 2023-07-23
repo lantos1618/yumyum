@@ -7,7 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	pb "github.com/lantos1618/yumyum/proto/go"
+	pb "github.com/lantos1618/yumyum/protos/go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
