@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+
 	"time"
 
 	pb "github.com/lantos1618/yumyum/proto/go"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,33 +32,34 @@ func createClientConnection(creds credentials.TransportCredentials) (*grpc.Clien
 	return grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
-func receiveMessages(client pb.YumYumServiceClient) {
-	stream, err := client.EmojiChat(context.Background())
-	if err != nil {
-		log.Fatalf("Failed to call ReceiveEmojiReaction: %v", err)
-	}
+func receiveMessages(stream pb.YumYumService_EmojiChatClient, quit <-chan bool) {
 	for {
-		emoji, err := stream.Recv()
-		if err != nil {
-			log.Fatalf("Failed to receive emoji: %v", err)
+		select {
+		case <-quit:
+			return
+		default:
+			emoji, err := stream.Recv()
+			if err != nil {
+				log.Fatalf("Failed to receive emoji: %v", err)
+			}
+			log.Printf("Received emoji: %v", emoji)
 		}
-		log.Printf("Received emoji: %v", emoji)
 	}
 }
 
-func sendMessages(client pb.YumYumServiceClient) {
-	stream, err := client.EmojiChat(context.Background(), grpc.EmptyCallOption{})
-	if err != nil {
-		log.Fatalf("Failed to call SendEmojiReaction: %v", err)
-	}
-	defer stream.CloseSend()
-
+func sendMessages(stream pb.YumYumService_EmojiChatClient, quit <-chan bool) {
+	ticker := time.NewTicker(time.Second)
 	for {
-		time.Sleep(time.Second * 1)
-		if err := stream.Send(&pb.Emoji{Reaction: pb.EmojiReaction_LOVE}); err != nil {
-			log.Fatalf("Failed to send emoji: %v", err)
+		select {
+		case <-quit:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			if err := stream.Send(&pb.Emoji{Reaction: pb.EmojiReaction_LOVE}); err != nil {
+				log.Fatalf("Failed to send emoji: %v", err)
+			}
+			log.Printf("Sent emoji: %v", pb.EmojiReaction_LOVE)
 		}
-		log.Printf("Sent emoji: %v", pb.EmojiReaction_LOVE)
 	}
 }
 
@@ -74,7 +76,16 @@ func main() {
 	defer conn.Close()
 
 	client := pb.NewYumYumServiceClient(conn)
+	stream, err := client.EmojiChat(context.Background())
+	if err != nil {
+		log.Fatalf("Error on creating stream: %v", err)
+	}
+	quit := make(chan bool)
 
-	go receiveMessages(client)
-	sendMessages(client)
+	go receiveMessages(stream, quit)
+	go sendMessages(stream, quit)
+
+	// Wait forever
+	select {}
+
 }
