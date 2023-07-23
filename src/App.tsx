@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { YumYumServiceClient } from "./generated/proto/YumyumServiceClientPb";
 import { Emoji, EmojiReaction } from "./generated/proto/yumyum_pb";
 
-const client = new YumYumServiceClient("http://localhost:8080");
-
+const client = new YumYumServiceClient("http://localhost:8080", null, null);
 
 
 function App() {

@@ -7,7 +7,7 @@ syntax = "proto3";
 // protoc --go_out=. --go-grpc_out=. yumyum.proto                                                                             ✔  14:01:41  
 
 
-package reactions;
+package yumyum;
 
 option go_package = "proto/go/";
 

@@ -6,7 +6,7 @@ import (
 
 	"time"
 
-	pb "github.com/lantos1618/yumyum/protos/go"
+	pb "github.com/lantos1618/yumyum/proto/go"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
