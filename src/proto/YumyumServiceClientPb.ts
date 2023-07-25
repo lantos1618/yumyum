@@ -1,5 +1,5 @@
 /**
- * @fileoverview gRPC-Web generated client stub for reactions
+ * @fileoverview gRPC-Web generated client stub for yumyum
  * @enhanceable
  * @public
  */
